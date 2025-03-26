@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,29 +18,35 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SnapHelper;
 
 import com.example.yourmealapp.adapters.MealHistoryAdapter;
 import com.example.yourmealapp.models.Meal;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 public class HomeActivity extends AppCompatActivity {
     private TextView mealTextView;
-    private ImageButton btnSuggestMeal, btnAcceptMeal, btnLogout;
-    private RecyclerView historyRecyclerView;
-    private MealHistoryAdapter mealHistoryAdapter;
+    private EditText searchEditText;
+    private ImageButton btnSearch, btnSuggestMeal, btnAcceptMeal, btnLogout;
+    private RecyclerView historyRecyclerView, favoriteRecyclerView;
+    private MealHistoryAdapter mealHistoryAdapter, favoriteAdapter;
     private DBHelper dbHelper;
     private String currentUsername;
     private Meal currentMeal;
 
-    private RecyclerView favoriteRecyclerView;
-    private MealHistoryAdapter favoriteAdapter;
+    private List<Meal> historyList, filteredHistoryList;
+    private Handler handler = new Handler();
+    private int scrollPosition = 0;
+    private Runnable autoScrollRunnable;
+
+    private Handler searchHandler = new Handler();
+    private Runnable searchRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +54,18 @@ public class HomeActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
+        // Ánh xạ View
         mealTextView = findViewById(R.id.mealTextView);
         mealTextView.setVisibility(View.VISIBLE);
         mealTextView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
 
+        searchEditText = findViewById(R.id.searchEditText);
+        btnSearch = findViewById(R.id.btnSearch);
         btnSuggestMeal = findViewById(R.id.btnSuggestMeal);
         btnAcceptMeal = findViewById(R.id.btnAcceptMeal);
         btnLogout = findViewById(R.id.btnLogout);
         historyRecyclerView = findViewById(R.id.historyRecyclerView);
-//        RecycleView hien thi danh sach yeu thich
         favoriteRecyclerView = findViewById(R.id.favoriteRecyclerView);
-
 
         dbHelper = new DBHelper(this);
 
@@ -72,23 +81,36 @@ public class HomeActivity extends AppCompatActivity {
 
         setButtonEffect(btnSuggestMeal);
         setButtonEffect(btnAcceptMeal);
-
         btnSuggestMeal.setOnClickListener(v -> suggestMeal());
         btnAcceptMeal.setOnClickListener(v -> acceptMeal());
-        btnLogout.setOnClickListener(v -> {
-            showLogoutDialog();
-        });
+        btnLogout.setOnClickListener(v -> showLogoutDialog());
 
         loadFavoriteMeals();
+
+        // Xử lý tìm kiếm
+        btnSearch.setOnClickListener(v -> performSearch());
+
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchHandler.removeCallbacks(searchRunnable); // Hủy tìm kiếm cũ
+                searchRunnable = () -> performSearch(); // Tạo tìm kiếm mới
+                searchHandler.postDelayed(searchRunnable, 300); // Hoãn tìm kiếm 300ms
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất?")
-                .setPositiveButton("Đăng xuất", (dialog, which) -> {
-                    performLogout();
-                })
+                .setPositiveButton("Đăng xuất", (dialog, which) -> performLogout())
                 .setNegativeButton("Hủy", null)
                 .show();
     }
@@ -105,9 +127,9 @@ public class HomeActivity extends AppCompatActivity {
     private void suggestMeal() {
         if (currentUsername != null) {
             currentMeal = dbHelper.suggestMeal(currentUsername, 10);
-
             if (currentMeal != null) {
-                mealTextView.setText("Gợi ý hôm nay: " + currentMeal.getName());
+                int likes = getRandomLikes(); // Lấy số lượt thích ngẫu nhiên
+                mealTextView.setText("Gợi ý hôm nay: " + currentMeal.getName() + " (" + likes + " like)");
             } else {
                 mealTextView.setText("Không có món ăn phù hợp!");
             }
@@ -116,12 +138,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void acceptMeal() {
         if (currentMeal != null) {
-            boolean success = dbHelper.saveMealHistory(
-                    currentUsername,
-                    currentMeal.getId(),  // Lấy ID của món ăn
-                    getCurrentDate()  // Lấy ngày hiện tại
-            );
-
+            boolean success = dbHelper.saveMealHistory(currentUsername, currentMeal.getId(), getCurrentDate());
             if (success) {
                 Toast.makeText(this, "Bạn đã chọn: " + currentMeal.getName(), Toast.LENGTH_SHORT).show();
                 loadMealHistory();
@@ -138,22 +155,17 @@ public class HomeActivity extends AppCompatActivity {
         return sdf.format(new Date());
     }
 
-    private Handler handler = new Handler();
-    private int scrollPosition = 0;
-    private Runnable autoScrollRunnable;
-
     private void loadMealHistory() {
-        List<Meal> mealHistory = dbHelper.getUserMealHistory(currentUsername);
-        mealHistoryAdapter = new MealHistoryAdapter(mealHistory, this, currentUsername, false, () -> loadFavoriteMeals());
+        historyList = dbHelper.getUserMealHistory(currentUsername);
+        filteredHistoryList = new ArrayList<>(historyList);
 
+        mealHistoryAdapter = new MealHistoryAdapter(filteredHistoryList, this, currentUsername, false, this::loadFavoriteMeals);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         historyRecyclerView.setAdapter(mealHistoryAdapter);
-        startAutoScroll(mealHistoryAdapter);
-
-
+        startAutoScroll();
     }
 
-    private void startAutoScroll(MealHistoryAdapter mealHistoryAdapter) {
+    private void startAutoScroll() {
         autoScrollRunnable = new Runnable() {
             @Override
             public void run() {
@@ -163,10 +175,78 @@ public class HomeActivity extends AppCompatActivity {
                 } else {
                     scrollPosition = 0;
                 }
-                handler.postDelayed(this, 3000); // Lặp lại sau 3 giây
+                handler.postDelayed(this, 3000);
             }
         };
         handler.postDelayed(autoScrollRunnable, 3000);
+    }
+
+    private void setupSearch() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchHandler.removeCallbacks(searchRunnable); // Xóa các tìm kiếm cũ
+                searchRunnable = () -> performSearch(s.toString().trim().toLowerCase(Locale.ROOT));
+                searchHandler.postDelayed(searchRunnable, 300); // Đợi 300ms mới thực hiện tìm kiếm
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+    private void performSearch() {
+        String keyword = searchEditText.getText().toString().trim().toLowerCase(Locale.ROOT);
+        performSearch(keyword);
+    }
+
+    private void performSearch(String keyword) {
+        List<Meal> newFilteredList = new ArrayList<>();
+
+        // Loại bỏ dấu và chuyển về chữ thường từ chuỗi tìm kiếm
+        String processedKeyword = removeAccents(keyword.toLowerCase(Locale.ROOT));
+
+        if (processedKeyword.isEmpty()) {
+            newFilteredList.addAll(historyList);
+        } else {
+            String[] keywords = processedKeyword.split("\\s+");
+
+            for (Meal meal : historyList) {
+                // Loại bỏ dấu và chuyển về chữ thường từ tên món ăn
+                String processedMealName = removeAccents(meal.getName().toLowerCase(Locale.ROOT));
+                boolean match = true;
+
+                for (String word : keywords) {
+                    if (!processedMealName.contains(word)) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    newFilteredList.add(meal);
+                }
+            }
+        }
+
+        // Chỉ cập nhật danh sách nếu có thay đổi
+        if (!newFilteredList.equals(filteredHistoryList)) {
+            filteredHistoryList.clear();
+            filteredHistoryList.addAll(newFilteredList);
+            mealHistoryAdapter.notifyDataSetChanged();
+        }
+
+        if (filteredHistoryList.isEmpty()) {
+            Toast.makeText(this, "Không tìm thấy món ăn phù hợp!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Hàm loại bỏ dấu tiếng Việt
+    private String removeAccents(String str) {
+        String nfdNormalizedString = java.text.Normalizer.normalize(str, java.text.Normalizer.Form.NFD);
+        return nfdNormalizedString.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
 
     @Override
@@ -185,11 +265,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void userInfo(View view) {
-//      Get user name from sharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String username = sharedPreferences.getString("username", null);
         if (username != null) {
-            // Gửi username sang màn hình thông tin người dùng
             Intent intent = new Intent(HomeActivity.this, UserProfile.class);
             intent.putExtra("username", username);
             startActivity(intent);
@@ -198,13 +276,17 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-//    Load favorite list
     private void loadFavoriteMeals() {
         List<Meal> favorites = dbHelper.getFavoriteMeals(currentUsername);
         favoriteAdapter = new MealHistoryAdapter(favorites, this, currentUsername, true, null);
-
         favoriteRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         favoriteRecyclerView.setAdapter(favoriteAdapter);
     }
+
+    private int getRandomLikes() {
+        Random random = new Random();
+        return random.nextInt(1000); // Tạo số lượt thích ngẫu nhiên từ 0 đến 999
+    }
+
 
 }

@@ -58,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/Pgginate"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="128dp"
         android:background="@drawable/retro_textview_bg"
         android:gravity="center"
         android:padding="14dp"
@@ -75,14 +75,12 @@
         android:id="@+id/buttonContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/historyTitleTextView"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mealTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Pgginate">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
             android:id="@+id/btnSuggestMeal"
@@ -105,6 +103,40 @@
             android:padding="16dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_accept_meal" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/searchContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/Pgginate">
+
+        <EditText
+            android:id="@+id/searchEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/retro_textview_bg"
+            android:hint="Nhập từ khóa tìm kiếm"
+            android:padding="7dp"
+            android:textColor="@color/retro_text"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="48dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_button_bg"
+            android:contentDescription="Tìm kiếm"
+            android:src="@drawable/ic_search" />
     </LinearLayout>
 
     <TextView
