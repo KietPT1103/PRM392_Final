@@ -12,10 +12,36 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.YourMealApp"
         tools:targetApi="31">
+
+        <!-- Main Activity - Màn hình chính -->
         <activity
-            android:name=".UserProfile"
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Activity quản lý người dùng -->
+        <activity
+            android:name=".ManageUser"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".AdminActivity"
             android:exported="false">
         </activity>
+
+        <!-- Các Activity khác -->
+        <activity
+            android:name=".UserProfile"
+            android:exported="false" />
         <activity
             android:name=".ManageRestaurantsActivity"
             android:exported="false" />
@@ -31,15 +57,6 @@
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>
