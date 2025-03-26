@@ -45,6 +45,7 @@ public class MealListFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                filterMeals(newText);
                 return true;
             }
         });
