@@ -1,45 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/white"
     tools:context=".MainActivity">
 
     <!-- Logo -->
+
+    <!-- Tiêu đề -->
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="312dp"
-        android:layout_height="111dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp"
+        android:layout_width="226dp"
+        android:layout_height="79dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="18dp"
         app:srcCompat="@drawable/logonprmproject" />
 
-    <!-- ScrollView để cuộn được nếu nội dung dài -->
+    <!-- Phần nội dung có thể cuộn -->
+    <TextView
+        android:id="@+id/textUnderLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Đăng ký"
+        android:textColor="@color/retro_text"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/imageView2"
-        android:layout_marginTop="12dp"
-        android:padding="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="18dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textUnderLogo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Đăng ký"
-                android:textColor="@color/retro_text"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
 
             <!-- Họ và tên -->
             <TextView
@@ -55,7 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/retro_input"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:textColor="@color/retro_text"
                 android:textSize="16sp" />
 
@@ -67,14 +70,14 @@
                 android:text="Email"
                 android:textSize="16sp"
                 android:textColor="@color/retro_text"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="8dp" />
 
             <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:textSize="16sp"
                 android:background="@drawable/retro_input"
                 android:textColor="@color/retro_text" />
@@ -87,14 +90,14 @@
                 android:text="Số điện thoại"
                 android:textSize="16sp"
                 android:textColor="@color/retro_text"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="8dp" />
 
             <EditText
                 android:id="@+id/phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="phone"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:textSize="16sp"
                 android:background="@drawable/retro_input"
                 android:textColor="@color/retro_text" />
@@ -107,13 +110,13 @@
                 android:text="Tên đăng nhập"
                 android:textSize="16sp"
                 android:textColor="@color/retro_text"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="8dp" />
 
             <EditText
                 android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:textSize="16sp"
                 android:background="@drawable/retro_input"
                 android:textColor="@color/retro_text" />
@@ -126,14 +129,14 @@
                 android:text="Mật khẩu"
                 android:textSize="16sp"
                 android:textColor="@color/retro_text"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="8dp" />
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:textSize="16sp"
                 android:background="@drawable/retro_input"
                 android:textColor="@color/retro_text" />
@@ -146,45 +149,48 @@
                 android:text="Nhập lại mật khẩu"
                 android:textSize="16sp"
                 android:textColor="@color/retro_text"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="8dp" />
 
             <EditText
                 android:id="@+id/repassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:textSize="16sp"
                 android:background="@drawable/retro_input"
                 android:textColor="@color/retro_text" />
 
-            <!-- Nút đăng ký -->
-            <Button
-                android:id="@+id/btnSignup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Đăng ký"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:padding="14dp"
-                app:backgroundTint="@null"
-                android:background="@drawable/retro_button"
-                android:textColor="@color/white"
-                android:layout_marginTop="30dp" />
-
-            <!-- Nút đăng nhập -->
-            <Button
-                android:id="@+id/btnSignin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/retro_button_secondary"
-                android:padding="10dp"
-                app:backgroundTint="@null"
-                android:text="Đã có tài khoản? Đăng nhập ngay."
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
         </LinearLayout>
     </ScrollView>
-</RelativeLayout>
+
+    <!-- Nút đăng ký -->
+    <Button
+        android:id="@+id/btnSignup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng ký"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="14dp"
+        app:backgroundTint="@null"
+        android:background="@drawable/retro_button"
+        android:textColor="@color/white"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Nút đăng nhập -->
+    <Button
+        android:id="@+id/btnSignin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="@drawable/retro_button_secondary"
+        android:padding="10dp"
+        app:backgroundTint="@null"
+        android:text="Đã có tài khoản? Đăng nhập ngay."
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+</LinearLayout>
