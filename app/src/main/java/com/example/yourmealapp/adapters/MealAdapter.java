@@ -90,25 +90,30 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         notifyDataSetChanged();
     }
 
+    // Show dialog edit
     private void showEditDialog(View view, Meal meal) {
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
         builder.setTitle("Sửa món ăn");
 
+        // Tạo view cho dialog
         View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.fragment_edit_meal_dialog, null);
         EditText editMealName = dialogView.findViewById(R.id.editMealName);
         EditText editMealIngredient = dialogView.findViewById(R.id.editMealIngredient);
 
+        // Set giá trị ban đầu cho các trường
         editMealName.setText(meal.getName());
         editMealIngredient.setText(meal.getMainIngredient());
 
         builder.setView(dialogView);
 
+        // Tạo 2 nút cập nhật và hủy
         builder.setPositiveButton("Cập nhật", null); // Gán sau để tránh auto-dismiss
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();
         dialog.show();
 
+        // Xử lý sự kiện khi nhấn nút "Cập nhật"
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String newName = editMealName.getText().toString().trim();
             String newIngredient = editMealIngredient.getText().toString().trim();
@@ -133,6 +138,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         });
     }
 
+    // Show dialog delete
     private void showDeleteDialog(View view, Meal meal) {
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
         builder.setTitle("Xác nhận xóa");
