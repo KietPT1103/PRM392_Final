@@ -13,14 +13,15 @@ public class AdminActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Gán layout cho activity này
         setContentView(R.layout.activity_admin);
 
-        // Khai báo các Button
-        Button btnManageMeals = findViewById(R.id.btnManageMeals);
-        Button btnManageUsers = findViewById(R.id.btnManageUsers); // Nút quản lý người dùng
-        Button btnLogout = findViewById(R.id.btnLogout);
+        // Khai báo các Button và liên kết với ID trong layout
+        Button btnManageMeals = findViewById(R.id.btnManageMeals);  // Nút quản lý món ăn
+        Button btnManageUsers = findViewById(R.id.btnManageUsers);  // Nút quản lý người dùng
+        Button btnLogout = findViewById(R.id.btnLogout);  // Nút đăng xuất
 
-        // Load mặc định là trang Quản lý Món Ăn
+        // Load mặc định là fragment quản lý món ăn
         loadFragment(new ManageMealsFragment());
 
         // Sự kiện cho nút Quản lý Món Ăn
@@ -28,22 +29,22 @@ public class AdminActivity extends AppCompatActivity {
 
         // Sự kiện cho nút Quản lý Người Dùng
         btnManageUsers.setOnClickListener(view -> {
-            // Chuyển đến ManageUsersActivity
+            // Chuyển đến Activity quản lý người dùng
             Intent intent = new Intent(AdminActivity.this, ManageUser.class);
             startActivity(intent);
         });
 
         // Sự kiện cho nút Đăng Xuất
         btnLogout.setOnClickListener(view -> {
-            // Xử lý đăng xuất (chuyển về LoginActivity)
-            finish();
+            // Xử lý đăng xuất, quay lại màn hình đăng nhập (LoginActivity)
+            finish();  // Kết thúc Activity hiện tại và quay lại màn hình trước
         });
     }
 
-    // Hàm để load fragment vào container
+    // Hàm để load fragment vào container (chỗ chứa fragment)
     private void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragmentContainer, fragment);
-        transaction.commit();
+        transaction.replace(R.id.fragmentContainer, fragment);  // Thay thế fragment hiện tại bằng fragment mới
+        transaction.commit();  // Xác nhận và thực thi giao dịch
     }
 }
