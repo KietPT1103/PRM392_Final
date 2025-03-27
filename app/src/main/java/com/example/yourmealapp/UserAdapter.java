@@ -1,5 +1,7 @@
 package com.example.yourmealapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -19,9 +21,11 @@ import java.util.List;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
     private List<User> userList;
+    private Context context;
 
-    public UserAdapter(List<User> userList) {
+    public UserAdapter(List<User> userList , Context context) {
         this.userList = userList;
+        this.context = context;
     }
 
     @NonNull
@@ -39,6 +43,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.fullnameTextView.setText(user.getFullname());
         holder.emailTextView.setText(user.getEmail());
         holder.phoneTextView.setText(user.getPhone());
+
+        // Click on each iteam -> referento to UserDetails page
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, UserDetails.class);
+            intent.putExtra("username", user.getUsername());
+            intent.putExtra("fullname", user.getFullname());
+            intent.putExtra("email", user.getEmail());
+            intent.putExtra("phone", user.getPhone());
+            intent.putExtra("role", user.getRole());
+            context.startActivity(intent);
+        });
     }
 
     @Override

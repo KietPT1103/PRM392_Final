@@ -1,5 +1,6 @@
 package com.example.yourmealapp;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -29,6 +30,7 @@ public class ManageUsersFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -42,7 +44,7 @@ public class ManageUsersFragment extends Fragment {
         userList = dbHelper.getAllUsers();
 
         // Khởi tạo adapter và gán cho RecyclerView
-        userAdapter = new UserAdapter(userList);
+        userAdapter = new UserAdapter(userList, getContext());
         recyclerView.setAdapter(userAdapter);
 
         return view;

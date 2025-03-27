@@ -42,7 +42,7 @@ public class ManageUser extends AppCompatActivity {
         }
 
         // Khởi tạo adapter và gán cho RecyclerView
-        userAdapter = new UserAdapter(userList);
+        userAdapter = new UserAdapter(userList , this);
         recyclerView.setAdapter(userAdapter);
 
     }
